@@ -147,7 +147,7 @@ export default function ContactPage() {
                     </p>
                   </div>
                   <Link
-                    href="tel:0713759269"
+                    href="/signup"
                     className="inline-flex h-11 items-center justify-center rounded-full bg-boy px-6 text-sm font-semibold text-white transition-colors hover:bg-boy-deep"
                   >
                     Sign up
