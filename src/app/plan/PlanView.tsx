@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { getStoredUser } from "@/lib/auth";
 import { IMAGES } from "@/lib/images";
+import FloatingBalloons from "@/components/FloatingBalloons";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -85,7 +86,8 @@ export function PlanView() {
               />
             ))}
           </div>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-girl-soft">
+          <FloatingBalloons count={28} />
+          <p className="relative z-10 text-sm font-semibold uppercase tracking-[0.3em] text-girl-soft">
             Congratulations
           </p>
           <div className="relative mt-6 h-40 w-40 overflow-hidden rounded-full border-4 border-white shadow-2xl">

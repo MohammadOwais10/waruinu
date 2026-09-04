@@ -3,7 +3,6 @@ import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import FloatingBalloons from "@/components/FloatingBalloons";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -68,8 +67,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <Header />
-        <main id="main" className="relative flex-1">
-          <FloatingBalloons count={28} />
+        <main id="main" className="flex-1">
           {children}
         </main>
         <Footer />
