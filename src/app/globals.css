@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@theme {
+  --color-boy: #15174c;
+  --color-boy-deep: #0e1038;
+  --color-girl: #a768d5;
+  --color-girl-soft: #c9a2e6;
+  --color-ink: #1c1c24;
+  --color-slate-mist: #6b6b78;
+  --color-linen: #faf9f6;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+:root {
+  --background: #faf9f6;
+  --foreground: #1c1c24;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #15174c;
+  color: #ffffff;
+}
+
+/* Thin elegant focus rings for accessibility */
+:focus-visible {
+  outline: 2px solid #15174c;
+  outline-offset: 3px;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes floatBalloon {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-18vh) translateX(var(--sway, 0.5rem));
+  }
+  45% {
+    transform: translateY(-42vh) translateX(calc(var(--sway, 0.5rem) * -0.6));
+  }
+  70% {
+    transform: translateY(-70vh) translateX(var(--sway, 0.5rem));
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-116vh) translateX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes swayBalloon {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes swayString {
+  0%,
+  100% {
+    transform: rotate(6deg);
+  }
+  50% {
+    transform: rotate(-8deg);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
