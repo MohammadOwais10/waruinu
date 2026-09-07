@@ -70,14 +70,14 @@ export default function Footer() {
               <span className="relative flex h-16 w-16 flex-none items-center justify-center overflow-hidden rounded-full bg-white p-1.5 shadow-lg ring-2 ring-girl/30">
                 <Image
                   src={IMAGES.logo}
-                  alt="Waruinu logo"
+                  alt="Dagitari Waruinu logo"
                   fill
                   sizes="64px"
                   className="rounded-full object-cover"
                 />
               </span>
               <p className="font-display text-3xl font-semibold text-white">
-                Waruinu
+                Dagitari Waruinu
               </p>
             </div>
             <p className="mt-5 max-w-xs text-sm leading-6 text-white/70">
@@ -179,7 +179,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col gap-3 border-t border-white/15 pt-8 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {year} Waruinu. All rights reserved.</p>
+          <p>© {year} Dagitari Waruinu. All rights reserved.</p>
           <p>Dagitari Waruinu · Pius Warui Njenga</p>
         </div>
       </div>

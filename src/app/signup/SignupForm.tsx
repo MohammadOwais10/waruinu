@@ -46,7 +46,7 @@ export function SignupForm() {
         Create your account
       </h1>
       <p className="mt-3 text-sm leading-6 text-slate-mist">
-        Join Waruinu to choose a plan and begin your personalised journey.
+        Join Dagitari Waruinu to choose a plan and begin your personalised journey.
       </p>
 
       <form

@@ -2,7 +2,7 @@ const SERVICES = [
   {
     num: "01",
     title: "Early gender planning",
-    body: "Predict and plan your baby's gender before conception with a structured, science-led approach.",
+    body: "Plan your baby's gender before conception with a structured, science-led approach.",
   },
   {
     num: "02",
@@ -39,13 +39,13 @@ export default function Services() {
           <div className="lg:col-span-4">
             <div className="lg:sticky lg:top-28">
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-girl">
-                Everything Waruinu offers
+                Everything Dagitari Waruinu offers
               </p>
               <h2 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-boy md:text-5xl">
                 Beyond prediction.
               </h2>
               <p className="mt-6 text-base leading-7 text-slate-mist">
-                Waruinu brings together prediction, coaching, and public service
+                Dagitari Waruinu brings together prediction, coaching, and public service
                 — so families are supported at every step.
               </p>
             </div>

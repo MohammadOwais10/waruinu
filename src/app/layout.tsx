@@ -19,21 +19,21 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL("https://waruinu.com"),
   title: {
-    default: "Waruinu | Plan Your Baby's Gender with Confidence",
-    template: "%s | Waruinu",
+    default: "Dagitari Waruinu | Plan Your Baby's Gender with Confidence",
+    template: "%s | Dagitari Waruinu",
   },
   description:
-    "A science-led, non-invasive method for planning your baby's gender before conception. With Waruinu, families plan ahead with clarity and care.",
+    "A science-led, non-invasive method for planning your baby's gender before conception. With Dagitari Waruinu, families plan ahead with clarity and care.",
   keywords: [
-    "baby gender prediction",
+    "baby gender planning",
     "gender planning",
     "preconception",
     "family planning",
-    "Waruinu",
+    "Dagitari Waruinu",
     "sexologist",
   ],
   openGraph: {
-    title: "Waruinu | Plan Your Baby's Gender with Confidence",
+    title: "Dagitari Waruinu | Plan Your Baby's Gender with Confidence",
     description:
       "A science-led, non-invasive method for planning your baby's gender before conception.",
     type: "website",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Waruinu | Plan Your Baby's Gender with Confidence",
+    title: "Dagitari Waruinu | Plan Your Baby's Gender with Confidence",
     description:
       "A science-led, non-invasive method for planning your baby's gender before conception.",
   },

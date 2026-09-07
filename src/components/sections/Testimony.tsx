@@ -2,8 +2,8 @@
 const TESTIMONIALS = [
   {
     quote:
-      "Planning ahead gave us so much peace of mind. Waruinu guided us with clarity and care at every step — we felt entirely supported.",
-    name: "A Waruinu family",
+      "Planning ahead gave us so much peace of mind. Dagitari Waruinu guided us with clarity and care at every step — we felt entirely supported.",
+    name: "A Dagitari Waruinu family",
     initial: "W",
   },
   {
@@ -64,7 +64,7 @@ export default function Testimony() {
                 <div>
                   <p className="font-semibold text-ink">{t.name}</p>
                   <p className="mt-0.5 text-sm text-slate-mist">
-                    Planned with Waruinu
+                    Planned with Dagitari Waruinu
                   </p>
                 </div>
               </figcaption>

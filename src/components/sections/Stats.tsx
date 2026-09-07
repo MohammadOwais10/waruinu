@@ -29,7 +29,7 @@ export default function Stats() {
               The method delivers
             </p>
             <h2 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl">
-              Waruinu equals results.
+              Dagitari Waruinu equals results.
             </h2>
             <p className="mt-6 max-w-md text-lg leading-8 text-white/75">
               Join families across the world who chose to plan ahead — with a
@@ -52,7 +52,7 @@ export default function Stats() {
             </div>
             <p className="mt-6 max-w-sm text-sm leading-6 text-white/60">
               Based on the experiences of families who completed the full
-              Waruinu method.
+              Dagitari Waruinu method.
             </p>
           </div>
         </div>

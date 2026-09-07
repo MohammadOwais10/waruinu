@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { IMAGES } from "@/lib/images";
 
 const NAV_LINKS = [
@@ -13,9 +14,25 @@ const NAV_LINKS = [
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const atHomeTop = pathname === "/" && !scrolled;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-boy/10 bg-linen/80 backdrop-blur-xl">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
+        scrolled
+          ? "border-white/20 bg-white/30 shadow-lg shadow-boy/5 backdrop-blur-2xl backdrop-saturate-150"
+          : "border-transparent bg-transparent"
+      }`}
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 md:h-[4.5rem] md:px-8">
         <Link
           href="/"
@@ -25,15 +42,19 @@ export default function Header() {
           <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white shadow-sm ring-1 ring-boy/10">
             <Image
               src={IMAGES.logo}
-              alt="Waruinu logo"
+              alt="Dagitari Waruinu logo"
               fill
               sizes="36px"
               className="object-cover"
               priority
             />
           </span>
-          <span className="font-display text-2xl font-semibold tracking-tight text-boy">
-            Waruinu
+          <span
+            className={`font-display text-2xl font-semibold tracking-tight transition-colors duration-300 ${
+              atHomeTop ? "text-white" : "text-boy"
+            }`}
+          >
+            Dagitari Waruinu
           </span>
         </Link>
 
@@ -45,7 +66,11 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-slate-mist transition-colors hover:text-boy"
+              className={`text-sm font-medium transition-colors duration-300 ${
+                atHomeTop
+                  ? "text-white/80 hover:text-white"
+                  : "text-slate-mist hover:text-boy"
+              }`}
             >
               {link.label}
             </Link>
@@ -57,12 +82,14 @@ export default function Header() {
             href="/login"
             className="hidden items-center gap-2 rounded-full bg-boy px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-boy-deep md:inline-flex"
           >
-            Predict Baby Gender
+            Plan Baby Gender
           </Link>
 
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-boy transition-colors hover:bg-boy/5 lg:hidden"
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-lg transition-colors duration-300 lg:hidden ${
+              atHomeTop ? "text-white hover:bg-white/10" : "text-boy hover:bg-boy/5"
+            }`}
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="mobile-menu"
@@ -121,7 +148,7 @@ export default function Header() {
             onClick={() => setOpen(false)}
             className="mt-5 flex h-12 items-center justify-center rounded-full bg-boy text-sm font-semibold text-white"
           >
-            Predict Baby Gender
+            Plan Baby Gender
           </Link>
         </nav>
       )}

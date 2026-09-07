@@ -24,7 +24,7 @@ export default function Home() {
         image={IMAGES.happyFamily}
         title="Ready to plan the family you imagine?"
         subtitle="Create your private account and receive your personalised plan within 24 hours. Private, considered, and entirely natural."
-        linkText="Predict Baby Gender"
+        linkText="Plan Baby Gender"
         linkHref="/contact"
       />
     </>

@@ -7,7 +7,7 @@ import { IMAGES } from "@/lib/images";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Begin your journey with Waruinu. Create your account, register, and receive your personalised gender plan within 24 hours.",
+    "Begin your journey with Dagitari Waruinu. Create your account, register, and receive your personalised gender plan within 24 hours.",
 };
 
 const CONTACT_METHODS = [
@@ -32,7 +32,7 @@ const CONTACT_METHODS = [
   },
   {
     label: "Facebook",
-    value: "Follow Waruinu",
+    value: "Follow Dagitari Waruinu",
     href: "#",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -42,7 +42,7 @@ const CONTACT_METHODS = [
   },
   {
     label: "TikTok",
-    value: "Follow Waruinu",
+    value: "Follow Dagitari Waruinu",
     href: "#",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -52,7 +52,7 @@ const CONTACT_METHODS = [
   },
   {
     label: "Instagram",
-    value: "Follow Waruinu",
+    value: "Follow Dagitari Waruinu",
     href: "#",
     icon: (
       <svg
@@ -80,7 +80,7 @@ const FAQ = [
   },
   {
     q: "Is this method natural?",
-    a: "Yes. The Waruinu method is entirely non-invasive — no medication and no surgery. It works through careful, structured guidance.",
+    a: "Yes. The Dagitari Waruinu method is entirely non-invasive — no medication and no surgery. It works through careful, structured guidance.",
   },
   {
     q: "Is my information kept private?",
@@ -113,7 +113,7 @@ export default function ContactPage() {
         <div className="relative mx-auto max-w-3xl px-5 py-32 text-center md:py-44">
          
           <h1 className="mt-7 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
-            Predict your baby&apos;s gender
+            Plan your baby&apos;s gender
           </h1>
           <p className="mt-6 mx-auto max-w-xl text-base leading-7 text-white/85 md:text-lg md:leading-8">
             Create your account, register, and receive your personalised plan
@@ -206,7 +206,7 @@ export default function ContactPage() {
             <div>
               <SectionHeading
                 eyebrow="Contact"
-                title="Reach the Waruinu team"
+                title="Reach the Dagitari Waruinu team"
               />
 
               <div className="mt-8 grid gap-4 sm:grid-cols-2">

@@ -1,6 +1,8 @@
 export const IMAGES = {
   logo: "/logo/logo.png",
   owner: "/images/owner.jpeg",
+  heroBg: "/background/hero-bg.jpg",
+  heroOwner: "/background/hero-owner.png",
 
   // Boy-related
   heroBoy: "/images/jennifer-kalenberg-XwTpaM9I11g-unsplash.jpg",

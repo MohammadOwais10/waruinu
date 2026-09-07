@@ -9,7 +9,7 @@ const PACKAGES = [
     id: "gender",
     name: "Gender Plan",
     price: "KSh 1,499",
-    tagline: "Predict your baby's gender",
+    tagline: "Plan your baby's gender",
     features: [
       "Personalised gender plan",
       "Calendar guidance to conceive",
@@ -25,7 +25,7 @@ const PACKAGES = [
     tagline: "Gender plan + 1:1 guidance",
     features: [
       "Everything in Gender Plan",
-      "One-on-one with Waruinu",
+      "One-on-one with Dagitari Waruinu",
       "Personalised coaching calls",
       "Ongoing support",
     ],

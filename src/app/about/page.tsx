@@ -8,7 +8,7 @@ import { IMAGES } from "@/lib/images";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Meet Dagitari Waruinu — Pius Warui Njenga, founder of Waruinu and pioneer of a science-led method for planning your baby's gender before conception.",
+    "Meet Dagitari Waruinu — Pius Warui Njenga, founder of Dagitari Waruinu and pioneer of a science-led method for planning your baby's gender before conception.",
 };
 
 const MILESTONES = [
@@ -34,85 +34,83 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero */}
-      <section className="border-b-4 border-boy bg-linen">
-        <div className="border-b border-boy/20">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-boy">
-              About — No. 1
-            </p>
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-slate-mist">
-              Waruinu · Nairobi
-            </p>
-          </div>
-        </div>
-
-        <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <div className="grid lg:grid-cols-12 lg:gap-x-10">
-            {/* Massive type block */}
-            <div className="py-14 lg:col-span-7 lg:py-20">
-              <p className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-girl">
-                Dagitari Waruinu — Pius Warui Njenga
+      <section className="relative flex min-h-svh flex-col overflow-hidden border-b border-boy/10 bg-white">
+        <div className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col px-5 pt-20 md:px-8 md:pt-24">
+          <div className="grid flex-1 items-center gap-12 lg:grid-cols-12 lg:gap-14">
+            {/* Copy */}
+            <div className="lg:col-span-7">
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-girl">
+                Dagitari Waruinu · Founder
               </p>
-              <h1 className="mt-8 font-display text-[3.4rem] font-semibold leading-[0.95] tracking-tight text-boy sm:text-8xl">
-                Giving
-                <br />
-                families
-                <br />
-                a plan.
+
+              <h1 className="mt-7 font-display text-5xl font-semibold leading-[0.98] tracking-tight text-boy sm:text-6xl xl:text-7xl">
+                Giving families
+                <span className="block text-girl">a clear plan.</span>
               </h1>
-              <div className="mt-10 max-w-md border-l-4 border-boy pl-6">
-                <p className="text-lg leading-8 text-slate-mist">
-                  I help couples plan the gender of their baby before
-                  conception — a science-led method built on intention, not
-                  chance. No medication. No surgery.
-                </p>
-              </div>
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-                <Button href="/contact" variant="primary">
-                  Plan with Waruinu
-                </Button>
-                <Button href="/#method" variant="outline">
-                  The method
-                </Button>
+
+              <div className="mt-10 flex flex-col gap-8 border-t border-boy/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
+                <div className="max-w-sm">
+                  <p className="text-lg leading-7 text-slate-mist">
+                    A science-led method for planning your baby&apos;s gender
+                    before conception — private, natural, and trusted by
+                    families.
+                  </p>
+                  <p className="mt-4 font-mono text-xs uppercase tracking-[0.2em] text-slate-mist">
+                    No medication · No surgery
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                  <Button href="/contact" variant="primary">
+                    Plan with Dagitari Waruinu
+                  </Button>
+                  <Button href="/#method" variant="outline">
+                    The method
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Portrait — hard-framed cell */}
-            <div className="border-t-4 border-boy pb-16 lg:col-span-5 lg:border-l lg:border-t-0 lg:pb-0 lg:pl-10 lg:pt-14">
-              <figure className="relative lg:pl-6">
-                <div className="relative overflow-hidden border-2 border-boy">
+            {/* Portrait */}
+            <div className="lg:col-span-5">
+              <figure>
+                <div className="relative max-h-[min(56svh,32rem)] overflow-hidden">
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-br from-boy-deep via-boy to-girl/50"
+                    aria-hidden="true"
+                  />
                   <Image
-                    src={IMAGES.owner}
+                    src={IMAGES.heroOwner}
                     alt="Dagitari Waruinu — Pius Warui Njenga, founder"
-                    width={1067}
-                    height={1600}
+                    width={408}
+                    height={612}
                     priority
                     sizes="(max-width: 1024px) 100vw, 45vw"
-                    className="h-[480px] w-full object-cover object-top md:h-[560px]"
+                    className="relative aspect-[408/612] h-auto w-full object-cover object-top"
                   />
-                  <span className="absolute right-3 top-3 bg-boy px-2 py-1 text-xs font-bold uppercase tracking-widest text-white">
-                    Fig.
-                  </span>
                 </div>
-                <figcaption className="mt-3 flex items-baseline justify-between text-xs font-medium uppercase tracking-[0.18em] text-slate-mist">
-                  <span>Dagitari Waruinu</span>
-                  <span>Tumaini · Kenya</span>
+                <figcaption className="mt-4 flex items-baseline justify-between border-t border-boy/10 pt-4">
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-boy">
+                    Dagitari Waruinu
+                  </span>
+                  <span className="font-mono text-xs uppercase tracking-[0.2em] text-slate-mist">
+                    Founder
+                  </span>
                 </figcaption>
               </figure>
             </div>
           </div>
-        </div>
 
-        {/* Index strip — hard rules */}
-        <div className="border-t-4 border-boy">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-boy/20 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {/* Metrics strip */}
+          <div className="grid grid-cols-1 divide-y divide-boy/10 border-t border-boy/10 pt-6 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {[
-              ["99%", "Success rate"],
-              ["24hrs", "Plan window"],
-              ["0", "Medication"],
+              ["99%", "Reported success rate"],
+              ["24hrs", "To a personalised plan"],
+              ["0", "Medication or surgery"],
             ].map(([v, l]) => (
-              <div key={l} className="px-5 py-5">
-                <p className="font-display text-3xl font-semibold text-boy">{v}</p>
+              <div key={l} className="py-4 sm:px-8 sm:first:pl-0 sm:py-5">
+                <p className="font-display text-3xl font-semibold text-boy">
+                  {v}
+                </p>
                 <p className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-slate-mist">
                   {l}
                 </p>
@@ -161,7 +159,7 @@ export default function AboutPage() {
                 parents who are building their family.
               </p>
               <p>
-                Beyond prediction, Waruinu serves as a family life coach and
+                Beyond prediction, Dagitari Waruinu serves as a family life coach and
                 sexologist, offering one-on-one guidance to couples navigating
                 this intimate decision. His presence as a radio co-host, public
                 speaker, and newspaper columnist extends the same message to
@@ -190,7 +188,7 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="Beyond prediction"
             title="A partner in family life, across every platform"
-            description="Waruinu brings together prediction, coaching, and public service — so families are supported at every step of their journey."
+            description="Dagitari Waruinu brings together prediction, coaching, and public service — so families are supported at every step of their journey."
             align="center"
           />
           <div className="mt-14 grid gap-px overflow-hidden rounded-lg border border-boy/10 bg-boy/10 sm:grid-cols-2 lg:grid-cols-4">
@@ -231,7 +229,7 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="The families we serve"
             title="Every family's story begins with intention"
-            description="From planning to the first newborn weeks, the Waruinu method walks beside you at each step."
+            description="From planning to the first newborn weeks, the Dagitari Waruinu method walks beside you at each step."
             align="center"
           />
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -292,7 +290,7 @@ export default function AboutPage() {
               href="/contact"
               className="inline-flex h-12 items-center justify-center rounded-full bg-girl px-8 text-sm font-semibold text-white transition-colors hover:bg-[#9555c9]"
             >
-              Predict Baby Gender
+              Plan Baby Gender
             </Link>
           </div>
         </div>

@@ -123,7 +123,7 @@ export function LoginForm() {
       </form>
 
       <p className="mt-8 border-t border-boy/10 pt-6 text-center text-sm text-slate-mist">
-        New to Waruinu?{" "}
+        New to Dagitari Waruinu?{" "}
         <Link
           href="/signup"
           className="font-semibold text-girl hover:underline"

@@ -19,7 +19,7 @@ export default function Founder() {
           <div className="relative overflow-hidden rounded-[2rem]">
             <Image
               src={IMAGES.owner}
-              alt="Dagitari Waruinu — Pius Warui Njenga, founder of Waruinu"
+              alt="Dagitari Waruinu — Pius Warui Njenga, founder of Dagitari Waruinu"
               width={1067}
               height={1600}
               sizes="(max-width: 1024px) 100vw, 42vw"
@@ -78,7 +78,7 @@ export default function Founder() {
               href="/about"
               className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-white/90"
             >
-              Read Waruinu&apos;s story
+              Read Dagitari Waruinu&apos;s story
               <svg
                 className="transition-transform group-hover:translate-x-1"
                 width="16"

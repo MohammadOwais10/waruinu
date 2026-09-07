@@ -5,7 +5,7 @@ import { IMAGES } from "@/lib/images";
 const STEPS = [
   {
     title: "Create your account",
-    body: "Begin on the Predict Baby Gender page and create your private account to get started.",
+    body: "Begin on the Plan Baby Gender page and create your private account to get started.",
     image: IMAGES.couple,
   },
   {
@@ -81,7 +81,7 @@ export default function HowItWorks() {
             href="/contact"
             className="group inline-flex items-center gap-3 rounded-full bg-girl px-9 py-4 text-base font-semibold text-white transition-colors hover:bg-[#9555c9]"
           >
-            Predict Baby Gender
+            Plan Baby Gender
             <svg
               className="transition-transform group-hover:translate-x-1"
               width="18"

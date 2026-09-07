@@ -35,7 +35,7 @@ export default function WaysToPlan() {
         <div className="grid items-end gap-8 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-girl">
-              Ways to plan with Waruinu
+              Ways to plan with Dagitari Waruinu
             </p>
             <h2 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-boy md:text-5xl">
               Paths that liberate your family&apos;s future.
