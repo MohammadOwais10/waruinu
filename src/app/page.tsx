@@ -21,7 +21,7 @@ export default function Home() {
       <Stats />
       <Services />
       <ImageBreak
-        image={IMAGES.happyFamily}
+        image={IMAGES.family}
         title="Ready to plan the family you imagine?"
         subtitle="Create your private account and receive your personalised plan within 24 hours. Private, considered, and entirely natural."
         linkText="Plan Baby Gender"

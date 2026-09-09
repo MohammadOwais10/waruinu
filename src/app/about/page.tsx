@@ -132,12 +132,12 @@ export default function AboutPage() {
                 />
                 <div className="mt-7 overflow-hidden rounded-lg">
                   <Image
-                    src={IMAGES.family}
+                    src="/images/dwayne-joe-80Zh-xPi7KA-unsplash.jpg"
                     alt="A family walking together at golden hour"
                     width={1400}
                     height={1050}
                     sizes="(max-width: 1024px) 100vw, 42vw"
-                    className="h-72 w-full object-cover md:h-80"
+                    className="h-72 w-full object-cover md:h-96"
                   />
                 </div>
               </div>
