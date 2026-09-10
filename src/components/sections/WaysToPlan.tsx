@@ -12,7 +12,7 @@ const FEATURED = {
 const ITEMS = [
   {
     title: "Plan a baby girl",
-    image: IMAGES.girl3,
+    image: IMAGES.heroGirl,
     href: "/#method",
   },
   {

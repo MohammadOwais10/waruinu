@@ -6,12 +6,12 @@ const STEPS = [
   {
     title: "Create your account",
     body: "Begin on the Plan Baby Gender page and create your private account to get started.",
-    image: IMAGES.couple,
+    image: "/images/my-networking-apparel-54VE0-oytqo-unsplash.jpg",
   },
   {
     title: "Pay your membership",
     body: "A one-time membership of KSh 1,499 opens the door to your personalised gender plan.",
-    image: IMAGES.valeriaPregnant,
+    image: IMAGES.pregnancy,
   },
   {
     title: "Complete your details",
@@ -21,7 +21,7 @@ const STEPS = [
   {
     title: "Receive your instructions",
     body: "Within 24 hours, receive the step-by-step guidance on how to conceive your desired gender.",
-    image: IMAGES.girl2,
+    image: "/images/sadiq-abdulmalik-qP2e6j1m-YA-unsplash.jpg",
   },
 ];
 
