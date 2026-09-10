@@ -1,11 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getStoredUser } from "@/lib/auth";
-import { IMAGES } from "@/lib/images";
-import FloatingBalloons from "@/components/FloatingBalloons";
+import {
+  Consultation,
+  createConsultation,
+  createConsultationMessage,
+  getConsultation,
+  getConsultations,
+  getMe,
+  ApiError,
+  MeProfile,
+} from "@/lib/api";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -14,311 +21,460 @@ const MONTHS = [
 
 export function PlanView() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const [membershipChecked, setMembershipChecked] = useState(false);
   const [user] = useState<ReturnType<typeof getStoredUser>>(() => getStoredUser());
 
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [month, setMonth] = useState(new Date().getMonth());
-  const [day, setDay] = useState<number | null>(null);
+  const [consultation, setConsultation] = useState<Consultation | null>(null);
+  const [membership, setMembership] = useState<MeProfile["membership"]>(null);
+  const [ticketCount, setTicketCount] = useState(0);
 
-  const [partner1, setPartner1] = useState("2000-01-01");
-  const [partner2, setPartner2] = useState("2000-01-01");
-  const [result, setResult] = useState<"boy" | "girl" | null>(null);
-  const [revealed, setRevealed] = useState(false);
-  const [celebrating, setCelebrating] = useState(false);
+  // Form state
+  const [motherName, setMotherName] = useState(user?.name ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState("1990-01");
+  const [regularMenstrualCycle, setRegularMenstrualCycle] = useState<boolean | null>(null);
+  const [underlyingCondition, setUnderlyingCondition] = useState<boolean | null>(null);
+  const [underlyingConditionDetails, setUnderlyingConditionDetails] = useState("");
+  const [desiredGender, setDesiredGender] = useState<"BOY" | "GIRL" | null>(null);
+  const [plannedConceptionYear, setPlannedConceptionYear] = useState(new Date().getFullYear());
+
+  const [newMessage, setNewMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [message, setMessage] = useState("");
+  const [ticketCreated, setTicketCreated] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const pkg = localStorage.getItem("waruinu_package");
-    if (!user || !pkg) {
-      router.replace(pkg ? "/login" : "/packages");
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || !user) return;
+    getMe()
+      .then(async (me) => {
+        if (me.membership?.status !== "ACTIVE") {
+          router.replace("/packages");
+          return;
+        }
+        setMembership(me.membership);
+        setMembershipChecked(true);
+        try {
+          const list = await getConsultations();
+          setTicketCount(list.length);
+          // Only auto-open a non-closed ticket; if all are closed, show the form
+          const openTicket = list.find((c) => c.status !== "CLOSED");
+          if (openTicket) {
+            const full = await getConsultation(openTicket.id);
+            setConsultation(full);
+          }
+        } catch {
+          // no consultations yet
+        }
+      })
+      .catch(() => router.replace("/login"));
+  }, [mounted, user, router]);
+
+  // Poll for new admin messages every 5 sec
+  useEffect(() => {
+    if (!consultation) return;
+    const interval = setInterval(() => {
+      getConsultation(consultation.id)
+        .then(setConsultation)
+        .catch(() => {});
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [consultation?.id]);
+
+  if (!mounted || !user || !membershipChecked) return null;
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (
+      !motherName.trim() ||
+      regularMenstrualCycle === null ||
+      underlyingCondition === null ||
+      !desiredGender
+    ) {
+      setMessage("Please fill in all required fields.");
+      return;
     }
-  }, [user, router]);
 
-  const daysInMonth = useMemo(
-    () => new Date(year, month + 1, 0).getDate(),
-    [year, month]
-  );
-  const firstWeekday = useMemo(
-    () => (new Date(year, month, 1).getDay() + 6) % 7, // Monday-first
-    [year, month]
-  );
+    if (membership?.package?.ticketLimit !== null && membership?.package?.ticketLimit !== undefined && ticketCount >= membership.package.ticketLimit) {
+      setMessage(`You have used all ${membership.package.ticketLimit} tickets in your ${membership.package.name} package.`);
+      return;
+    }
 
-  if (!user) return null;
-
-  function computeGender(): "boy" | "girl" {
-    const target = new Date(year, month, day ?? 1);
-    const doy =
-      (Date.UTC(target.getFullYear(), target.getMonth(), target.getDate()) -
-        Date.UTC(target.getFullYear(), 0, 0)) /
-      86400000;
-    const digits = (s: string) =>
-      s.replace(/\D/g, "").split("").reduce((a, n) => a + Number(n), 0);
-    const seed = doy + digits(partner1) * 3 + digits(partner2) * 7;
-    return Math.abs(seed % 2) === 0 ? "girl" : "boy";
+    setSubmitting(true);
+    setMessage("");
+    const [yearStr, monthStr] = dateOfBirth.split("-");
+    const dateOfBirthYear = parseInt(yearStr, 10);
+    const dateOfBirthMonth = MONTHS[parseInt(monthStr, 10) - 1] || monthStr;
+    try {
+      await createConsultation({
+        motherName: motherName.trim(),
+        dateOfBirthMonth,
+        dateOfBirthYear,
+        regularMenstrualCycle,
+        underlyingCondition,
+        underlyingConditionDetails: underlyingCondition ? underlyingConditionDetails : undefined,
+        desiredGender,
+        plannedConceptionYear,
+      });
+      const list = await getConsultations();
+      setTicketCount(list.length);
+      if (list.length > 0) {
+        const full = await getConsultation(list[0].id);
+        setConsultation(full);
+      }
+      setTicketCreated(true);
+    } catch (err) {
+      setMessage(
+        err instanceof ApiError
+          ? err.message
+          : "Could not create ticket. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  function handleReveal() {
-    setResult(computeGender());
-    setRevealed(true);
-    setCelebrating(true);
-    window.setTimeout(() => setCelebrating(false), 8000);
+  async function handleSendMessage(e: React.FormEvent) {
+    e.preventDefault();
+    if (!consultation || !newMessage.trim()) return;
+    setSending(true);
+    try {
+      await createConsultationMessage(consultation.id, newMessage.trim());
+      const full = await getConsultation(consultation.id);
+      setConsultation(full);
+      setNewMessage("");
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    } catch (err) {
+      setMessage(
+        err instanceof ApiError
+          ? err.message
+          : "Could not send message."
+      );
+    } finally {
+      setSending(false);
+    }
+  }
+
+  if (consultation) {
+    return (
+      <section className="bg-linen pb-24 pt-28 md:pt-36">
+        <div className="mx-auto max-w-2xl px-5 md:px-8">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-girl">
+              Your ticket
+            </p>
+            <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight text-boy">
+              Consultation with Dagitari Waruinu
+            </h1>
+            <p className="mt-2 text-sm text-slate-mist">
+              Status: <span className="font-semibold text-boy">{consultation.status}</span>
+              {membership?.package && (
+                <span className="ml-3">
+                  Plan: <span className="font-semibold text-boy">{membership.package.name}</span>
+                  {membership.package.ticketLimit !== null && membership.package.ticketLimit !== undefined && (
+                    <span className="ml-2 text-xs">
+                      ({Math.max(0, membership.package.ticketLimit - ticketCount)} tickets remaining)
+                    </span>
+                  )}
+                </span>
+              )}
+            </p>
+
+            {consultation.status === "CLOSED" && (
+              membership?.package?.ticketLimit === null || membership?.package?.ticketLimit === undefined || ticketCount < membership.package.ticketLimit ? (
+                <button
+                  onClick={() => {
+                    setConsultation(null);
+                    setNewMessage("");
+                  }}
+                  className="mt-4 h-10 rounded-full border border-boy/20 px-5 text-sm font-semibold text-boy transition-colors hover:bg-linen"
+                >
+                  + Create new ticket
+                </button>
+              ) : (
+                <p className="mt-4 text-xs text-slate-mist">
+                  You have used all your tickets.
+                </p>
+              )
+            )}
+          </div>
+
+          <div className="mt-8 flex h-80 flex-col rounded-2xl border border-boy/10 bg-white shadow-sm md:h-[28rem]">
+            <div className="flex-1 space-y-4 overflow-y-auto p-5">
+              <div className="rounded-lg bg-linen p-4 text-sm text-ink">
+                <p className="font-semibold text-boy">Initial request</p>
+                <div className="mt-2 grid grid-cols-1 gap-1.5 text-xs sm:grid-cols-2">
+                  <p><span className="text-slate-mist">Mother:</span> <span className="font-medium">{consultation.motherName}</span></p>
+                  <p><span className="text-slate-mist">Desired gender:</span> <span className="font-medium">{consultation.desiredGender}</span></p>
+                  <p><span className="text-slate-mist">DOB:</span> <span className="font-medium">{consultation.dateOfBirthMonth}/{consultation.dateOfBirthYear}</span></p>
+                  <p><span className="text-slate-mist">Plan year:</span> <span className="font-medium">{consultation.plannedConceptionYear}</span></p>
+                  <p><span className="text-slate-mist">Regular cycle:</span> <span className="font-medium">{consultation.regularMenstrualCycle ? "Yes" : "No"}</span></p>
+                  <p><span className="text-slate-mist">Condition:</span> <span className="font-medium">{consultation.underlyingCondition ? "Yes" : "No"}</span></p>
+                  {consultation.underlyingCondition && consultation.underlyingConditionDetails && (
+                    <p className="sm:col-span-2"><span className="text-slate-mist">Condition details:</span> <span className="font-medium">{consultation.underlyingConditionDetails}</span></p>
+                  )}
+                </div>
+              </div>
+
+              {consultation.messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`flex ${m.sender === "USER" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
+                      m.sender === "USER"
+                        ? "rounded-br-none bg-boy text-white"
+                        : "rounded-bl-none border border-boy/10 bg-linen text-ink"
+                    }`}
+                  >
+                    {m.message}
+                    <p className={`mt-1 text-[10px] ${m.sender === "USER" ? "text-white/70" : "text-slate-mist"}`}>
+                      {new Date(m.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {consultation.status !== "CLOSED" ? (
+              <form
+                onSubmit={handleSendMessage}
+                className="flex items-center gap-3 border-t border-boy/10 p-4"
+              >
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a follow-up message…"
+                  disabled={sending}
+                  className="h-12 flex-1 rounded-full border border-boy/15 bg-white px-4 text-sm text-ink outline-none focus:border-girl focus:ring-2 focus:ring-girl/20 disabled:opacity-60"
+                />
+                <button
+                  type="submit"
+                  disabled={sending || !newMessage.trim()}
+                  className="h-12 rounded-full bg-boy px-6 text-sm font-semibold text-white transition-colors hover:bg-boy-deep disabled:opacity-60"
+                >
+                  {sending ? "…" : "Send"}
+                </button>
+              </form>
+            ) : (
+              <p className="border-t border-boy/10 p-4 text-center text-sm text-slate-mist">
+                This consultation is closed.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
     <section className="bg-linen pb-24 pt-28 md:pt-36">
-      {/* Celebration overlay */}
-      {celebrating && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-boy-deep/90 p-6 text-center text-white">
-          <div
-            className="pointer-events-none absolute inset-0 overflow-hidden"
-            aria-hidden="true"
-          >
-            {Array.from({ length: 40 }).map((_, i) => (
-              <span
-                key={i}
-                className="absolute block h-3 w-3 animate-[confetti_3s_ease-in-out_infinite] rounded-sm"
-                style={{
-                  left: `${(i * 37) % 100}%`,
-                  top: "-8%",
-                  backgroundColor: i % 3 === 0 ? "#A768D5" : i % 3 === 1 ? "#15174c" : "#ffffff",
-                  animationDelay: `${(i % 10) * 0.3}s`,
-                  transform: `rotate(${(i * 47) % 360}deg)`,
-                }}
-              />
-            ))}
-          </div>
-          <FloatingBalloons count={28} />
-          <p className="relative z-10 text-sm font-semibold uppercase tracking-[0.3em] text-girl-soft">
-            Congratulations
-          </p>
-          <div className="relative mt-6 h-40 w-40 overflow-hidden rounded-full border-4 border-white shadow-2xl">
-            <Image
-              src={result === "boy" ? IMAGES.heroBoy : IMAGES.heroGirl}
-              alt={result === "boy" ? "A baby boy" : "A baby girl"}
-              fill
-              sizes="160px"
-              className="object-cover"
-            />
-          </div>
-          <p className="mt-8 font-display text-5xl font-semibold tracking-tight sm:text-6xl">
-            It&apos;s a {result === "boy" ? "Boy" : "Girl"}!
-          </p>
-          <p className="mt-4 max-w-sm text-white/80">
-            Your plan has been prepared. Full guidance arrives within 24 hours.
-          </p>
-        </div>
-      )}
-
-      <div className="mx-auto max-w-2xl px-5 md:px-8">
+      <div className="mx-auto max-w-xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-girl">
-            Your gender plan
+            Step 2 · Consultation
           </p>
           <h1 className="mt-5 font-display text-4xl font-semibold tracking-tight text-boy md:text-5xl">
-            Plan your baby&apos;s gender
+            Create your ticket
           </h1>
           <p className="mt-4 text-base leading-7 text-slate-mist">
-            Select a target date on the calendar, enter both partners&apos;
-            dates of birth, then reveal your result.
+            Answer a few questions and Dagitari Waruinu will reply through chat.
           </p>
         </div>
 
-        <div className="mt-12 space-y-10">
-          {/* Step 1: Calendar */}
-          <div className="rounded-2xl border border-boy/10 bg-white p-7 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl font-semibold text-boy">
-                1 · Pick your target date
-              </h2>
-              <div className="flex gap-2">
+        <form
+          onSubmit={handleCreate}
+          className="mt-12 space-y-8 rounded-2xl border border-boy/10 bg-white p-8 shadow-sm"
+        >
+          {/* Mother name */}
+          <div>
+            <label
+              htmlFor="mother-name"
+              className="mb-1.5 block text-sm font-medium text-ink"
+            >
+              Mother&apos;s full name
+            </label>
+            <input
+              id="mother-name"
+              type="text"
+              value={motherName}
+              onChange={(e) => setMotherName(e.target.value)}
+              className="h-12 w-full rounded-xl border border-boy/15 bg-white px-4 text-sm text-ink outline-none transition-colors focus:border-girl focus:ring-2 focus:ring-girl/20"
+            />
+          </div>
+
+          {/* Date of birth */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink">
+              Date of birth
+            </label>
+            <input
+              type="month"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              max={new Date().toISOString().slice(0, 7)}
+              className="h-12 w-full rounded-xl border border-boy/15 bg-white px-4 text-sm text-ink outline-none transition-colors focus:border-girl focus:ring-2 focus:ring-girl/20"
+            />
+          </div>
+
+          {/* Desired gender */}
+          <div>
+            <p className="mb-2 text-sm font-medium text-ink">
+              Which gender are you hoping for?
+            </p>
+            <div className="flex gap-3">
+              {(["BOY", "GIRL"] as const).map((g) => (
                 <button
+                  key={g}
                   type="button"
-                  aria-label="Previous month"
-                  onClick={() => {
-                    const d = new Date(year, month - 1, 1);
-                    setYear(d.getFullYear());
-                    setMonth(d.getMonth());
-                  }}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-boy/15 text-boy hover:bg-linen"
+                  onClick={() => setDesiredGender(g)}
+                  className={`h-11 flex-1 rounded-full border text-sm font-semibold transition-colors ${
+                    desiredGender === g
+                      ? g === "BOY"
+                        ? "border-boy bg-boy text-white"
+                        : "border-girl bg-girl text-white"
+                      : "border-boy/15 text-boy hover:bg-linen"
+                  }`}
                 >
-                  ‹
+                  {g === "BOY" ? "Boy" : "Girl"}
                 </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Menstrual cycle */}
+          <div>
+            <p className="mb-2 text-sm font-medium text-ink">
+              Is your menstrual cycle regular?
+            </p>
+            <div className="flex gap-3">
+              {[true, false].map((v) => (
                 <button
+                  key={String(v)}
                   type="button"
-                  aria-label="Next month"
-                  onClick={() => {
-                    const d = new Date(year, month + 1, 1);
-                    setYear(d.getFullYear());
-                    setMonth(d.getMonth());
-                  }}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-boy/15 text-boy hover:bg-linen"
+                  onClick={() => setRegularMenstrualCycle(v)}
+                  className={`h-11 flex-1 rounded-full border text-sm font-semibold transition-colors ${
+                    regularMenstrualCycle === v
+                      ? "border-boy bg-boy text-white"
+                      : "border-boy/15 text-boy hover:bg-linen"
+                  }`}
                 >
-                  ›
+                  {v ? "Yes" : "No"}
                 </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Health condition */}
+          <div>
+            <p className="mb-1 text-sm font-medium text-ink">
+              Do you have any existing medical/reproductive health condition?
+            </p>
+            <p className="mb-3 text-xs text-slate-mist">
+              Examples: PCOS, Endometriosis, Thyroid, etc.
+            </p>
+            <div className="flex gap-3">
+              {[true, false].map((v) => (
+                <button
+                  key={String(v)}
+                  type="button"
+                  onClick={() => setUnderlyingCondition(v)}
+                  className={`h-11 flex-1 rounded-full border text-sm font-semibold transition-colors ${
+                    underlyingCondition === v
+                      ? "border-boy bg-boy text-white"
+                      : "border-boy/15 text-boy hover:bg-linen"
+                  }`}
+                >
+                  {v ? "Yes" : "No"}
+                </button>
+              ))}
+            </div>
+            {underlyingCondition && (
+              <div className="mt-3">
+                <label className="mb-1.5 block text-sm font-medium text-ink">
+                  Please specify the condition:
+                </label>
+                <input
+                  type="text"
+                  value={underlyingConditionDetails}
+                  onChange={(e) => setUnderlyingConditionDetails(e.target.value)}
+                  placeholder="e.g. PCOS"
+                  className="h-12 w-full rounded-xl border border-boy/15 bg-white px-4 text-sm text-ink outline-none focus:border-girl focus:ring-2 focus:ring-girl/20"
+                />
               </div>
-            </div>
-
-            <div className="mt-5 flex items-center justify-between text-sm font-medium text-boy">
-              <span>
-                {MONTHS[month]} {year}
-              </span>
-              <select
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="rounded-lg border border-boy/15 bg-white px-3 py-1.5 text-sm outline-none"
-              >
-                {Array.from({ length: 11 }, (_, i) => year - 5 + i).map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mt-4 grid grid-cols-7 gap-1 text-center text-xs font-medium uppercase tracking-wide text-slate-mist">
-              {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
-                <div key={d} className="py-1">
-                  {d}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-1 grid grid-cols-7 gap-1">
-              {Array.from({ length: firstWeekday }).map((_, i) => (
-                <div key={`pad-${i}`} />
-              ))}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                const d = i + 1;
-                const selected = day === d;
-                const today =
-                  new Date().getFullYear() === year &&
-                  new Date().getMonth() === month &&
-                  new Date().getDate() === d;
-                return (
-                  <button
-                    key={d}
-                    type="button"
-                    onClick={() => setDay(d)}
-                    className={`flex h-10 items-center justify-center rounded-lg text-sm transition-colors ${
-                      selected
-                        ? "bg-boy text-white"
-                        : today
-                          ? "bg-girl/20 text-boy"
-                          : "text-boy hover:bg-linen"
-                    }`}
-                  >
-                    {d}
-                  </button>
-                );
-              })}
-            </div>
-
-            {day && (
-              <p className="mt-4 rounded-lg bg-linen px-4 py-3 text-sm text-slate-mist">
-                Target date selected:{" "}
-                <span className="font-semibold text-boy">
-                  {day} {MONTHS[month]} {year}
-                </span>
-              </p>
             )}
           </div>
 
-          {/* Step 2: Partner DOBs */}
-          <div className="rounded-2xl border border-boy/10 bg-white p-7 shadow-sm">
-            <h2 className="font-display text-xl font-semibold text-boy">
-              2 · Enter both partners&apos; dates of birth
-            </h2>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="p1"
-                  className="mb-1.5 block text-sm font-medium text-ink"
-                >
-                  Partner 1 DOB
-                </label>
-                <input
-                  id="p1"
-                  type="date"
-                  value={partner1}
-                  onChange={(e) => setPartner1(e.target.value)}
-                  className="h-12 w-full rounded-lg border border-boy/15 bg-white px-3 text-sm text-ink outline-none focus:border-girl focus:ring-2 focus:ring-girl/20"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="p2"
-                  className="mb-1.5 block text-sm font-medium text-ink"
-                >
-                  Partner 2 DOB
-                </label>
-                <input
-                  id="p2"
-                  type="date"
-                  value={partner2}
-                  onChange={(e) => setPartner2(e.target.value)}
-                  className="h-12 w-full rounded-lg border border-boy/15 bg-white px-3 text-sm text-ink outline-none focus:border-girl focus:ring-2 focus:ring-girl/20"
-                />
-              </div>
-            </div>
+          {/* Planned conception year */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink">
+              Planned year of conception
+            </label>
+            <input
+              type="number"
+              min={new Date().getFullYear()}
+              max={new Date().getFullYear() + 5}
+              value={plannedConceptionYear}
+              onChange={(e) => setPlannedConceptionYear(Number(e.target.value))}
+              className="h-12 w-full rounded-xl border border-boy/15 bg-white px-4 text-sm text-ink outline-none transition-colors focus:border-girl focus:ring-2 focus:ring-girl/20"
+            />
           </div>
 
-          {/* Reveal */}
-          <button
-            type="button"
-            onClick={handleReveal}
-            disabled={!day}
-            className="h-14 w-full rounded-full bg-girl text-base font-semibold text-white transition-colors hover:bg-[#9555c9] disabled:cursor-not-allowed disabled:bg-boy/30"
-          >
-            Reveal my result
-          </button>
-
-          {/* Result */}
-          {revealed && result && (
-            <div
-              className={`rounded-2xl border-2 p-8 text-center ${
-                result === "boy"
-                  ? "border-boy bg-boy text-white"
-                  : "border-girl bg-girl text-white"
+          {message && (
+            <p
+              className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                message.startsWith("Please")
+                  ? "bg-red-50 text-red-600"
+                  : "bg-girl/10 text-boy"
               }`}
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] opacity-80">
-                Your result
-              </p>
-              <div className="relative mx-auto mt-5 h-32 w-32 overflow-hidden rounded-full border-4 border-white/30 shadow-xl">
-                <Image
-                  src={result === "boy" ? IMAGES.heroBoy : IMAGES.heroGirl}
-                  alt={result === "boy" ? "A baby boy" : "A baby girl"}
-                  fill
-                  sizes="128px"
-                  className="object-cover"
-                />
-              </div>
-              <p className="mt-5 font-display text-6xl font-semibold tracking-tight">
-                {result === "boy" ? "Boy" : "Girl"}
-              </p>
-              <p className="mx-auto mt-4 max-w-sm text-sm leading-6 opacity-90">
-                Based on your selected date and both partners&apos; details,
-                your present plan points toward a {result}. Guidance is prepared
-                within 24 hours.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setRevealed(false);
-                  setResult(null);
-                }}
-                className="mt-6 inline-flex h-11 items-center rounded-full bg-white/20 px-6 text-sm font-semibold text-white hover:bg-white/30"
-              >
-                Plan again
-              </button>
-            </div>
+              {message}
+            </p>
           )}
 
-          <p className="text-center text-xs leading-5 text-slate-mist">
-            Demo prototype — this reveal is a deterministic illustration for
-            preview purposes and does not constitute medical or professional
-            advice.
-          </p>
-        </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="h-12 w-full rounded-full bg-boy text-sm font-semibold text-white transition-colors hover:bg-boy-deep disabled:opacity-60"
+          >
+            {submitting ? "Creating ticket…" : "Create consultation ticket"}
+          </button>
+        </form>
+
+        {ticketCreated && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-boy/50 px-5 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl border border-boy/10 bg-white p-8 shadow-xl text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600">
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="mt-4 font-display text-2xl font-semibold text-boy">
+                Ticket created
+              </h2>
+              <p className="mt-2 text-sm text-slate-mist">
+                Your consultation ticket has been submitted. You will be redirected to your dashboard.
+              </p>
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="mt-6 h-12 w-full rounded-full bg-boy text-sm font-semibold text-white transition-colors hover:bg-boy-deep"
+              >
+                Go to dashboard
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

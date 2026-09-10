@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { IMAGES } from "@/lib/images";
+import { getStoredUser, clearStoredUser, type User } from "@/lib/auth";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -15,6 +16,7 @@ const NAV_LINKS = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
   const atHomeTop = pathname === "/" && !scrolled;
 
@@ -24,6 +26,15 @@ export default function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, [pathname]);
+
+  function logout() {
+    clearStoredUser();
+    window.location.href = "/login";
+  }
 
   return (
     <header
@@ -78,12 +89,34 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="hidden items-center gap-2 rounded-full bg-boy px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-boy-deep md:inline-flex"
-          >
-            Plan Baby Gender
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href={user.role === "ADMIN" ? "/admin" : "/dashboard"}
+                className="hidden items-center gap-2 rounded-full bg-boy px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-boy-deep md:inline-flex"
+              >
+                {user.role === "ADMIN" ? "Admin" : "Dashboard"}
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className={`hidden text-sm font-semibold transition-colors md:inline-block ${
+                  atHomeTop
+                    ? "text-white/80 hover:text-white"
+                    : "text-boy hover:text-boy-deep"
+                }`}
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden items-center gap-2 rounded-full bg-boy px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-boy-deep md:inline-flex"
+            >
+              Plan Baby Gender
+            </Link>
+          )}
 
           <button
             type="button"
@@ -143,13 +176,35 @@ export default function Header() {
               </li>
             ))}
           </ul>
-          <Link
-            href="/login"
-            onClick={() => setOpen(false)}
-            className="mt-5 flex h-12 items-center justify-center rounded-full bg-boy text-sm font-semibold text-white"
-          >
-            Plan Baby Gender
-          </Link>
+          {user ? (
+            <div className="mt-5 flex flex-col gap-3">
+              <Link
+                href={user.role === "ADMIN" ? "/admin" : "/dashboard"}
+                onClick={() => setOpen(false)}
+                className="flex h-12 items-center justify-center rounded-full bg-boy text-sm font-semibold text-white"
+              >
+                {user.role === "ADMIN" ? "Admin" : "Dashboard"}
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  logout();
+                }}
+                className="flex h-12 items-center justify-center rounded-full border border-boy/15 text-sm font-semibold text-ink"
+              >
+                Log out
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="mt-5 flex h-12 items-center justify-center rounded-full bg-boy text-sm font-semibold text-white"
+            >
+              Plan Baby Gender
+            </Link>
+          )}
         </nav>
       )}
     </header>

@@ -1,10 +1,13 @@
 "use client";
 
+import { clearToken } from "@/lib/api";
+
 export interface User {
+  id: string;
   name: string;
   phone: string;
-  email?: string;
-  password?: string;
+  email: string;
+  role: "USER" | "ADMIN";
   createdAt: string;
 }
 
@@ -29,6 +32,7 @@ export function setStoredUser(user: User): void {
 export function clearStoredUser(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(USER_KEY);
+  clearToken();
 }
 
 export function getStoredPackage(): string | null {
