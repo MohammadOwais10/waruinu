@@ -292,21 +292,25 @@ export function PackagesView() {
             </p>
           )}
 
-          {waitingPayment && process.env.NODE_ENV === "production" && (
-            <p className="rounded-lg bg-yellow-50 px-4 py-3 text-sm font-medium text-yellow-700">
-              Payment pending. Please complete the M-Pesa prompt on your phone. If you cancel, refresh the page to try again.
-            </p>
-          )}
+          {waitingPayment &&
+            process.env.NODE_ENV === "production" &&
+            process.env.NEXT_PUBLIC_ENABLE_PAYMENT_SIMULATE !== "true" && (
+              <p className="rounded-lg bg-yellow-50 px-4 py-3 text-sm font-medium text-yellow-700">
+                Payment pending. Please complete the M-Pesa prompt on your phone. If you cancel, refresh the page to try again.
+              </p>
+            )}
 
-          {waitingPayment && process.env.NODE_ENV !== "production" && (
-            <button
-              type="button"
-              onClick={handleSimulate}
-              className="h-12 w-full rounded-full border border-boy/30 bg-white text-sm font-semibold text-boy transition-colors hover:bg-linen"
-            >
-              Simulate M-Pesa approval (dev only)
-            </button>
-          )}
+          {waitingPayment &&
+            (process.env.NODE_ENV !== "production" ||
+              process.env.NEXT_PUBLIC_ENABLE_PAYMENT_SIMULATE === "true") && (
+              <button
+                type="button"
+                onClick={handleSimulate}
+                className="h-12 w-full rounded-full border border-boy/30 bg-white text-sm font-semibold text-boy transition-colors hover:bg-linen"
+              >
+                Simulate M-Pesa approval
+              </button>
+            )}
 
           <button
             type="submit"
