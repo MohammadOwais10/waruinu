@@ -462,7 +462,12 @@ export function DashboardView() {
                     ) : (
                       <div className="rounded-xl bg-linen p-4">
                         <p className="text-xs text-slate-mist">Validity</p>
-                        <p className="mt-1 font-display text-lg font-semibold text-boy">No expiry</p>
+                        <Link
+                          href="/packages"
+                          className="mt-2 inline-flex h-10 items-center rounded-full bg-boy px-5 text-sm font-semibold text-white transition-colors hover:bg-boy-deep"
+                        >
+                          Upgrade plan
+                        </Link>
                       </div>
                     )}
                     {profile.membership.package?.ticketLimit !== null && profile.membership.package?.ticketLimit !== undefined && (

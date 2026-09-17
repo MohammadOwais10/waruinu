@@ -77,10 +77,10 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium transition-colors duration-300 ${
+              className={`text-sm font-bold transition-colors duration-300 ${
                 atHomeTop
-                  ? "text-white/80 hover:text-white"
-                  : "text-slate-mist hover:text-boy"
+                  ? "text-white drop-shadow-sm hover:text-white/90"
+                  : "text-boy hover:text-boy-deep"
               }`}
             >
               {link.label}
@@ -114,7 +114,7 @@ export default function Header() {
               href="/login"
               className="hidden items-center gap-2 rounded-full bg-boy px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-boy-deep md:inline-flex"
             >
-              Plan Baby Gender
+              Plan Baby Gender / Sign In
             </Link>
           )}
 

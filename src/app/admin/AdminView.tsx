@@ -597,15 +597,21 @@ export function AdminView() {
                       {payments.slice(0, 5).map((p) => (
                         <div
                           key={p.id}
-                          className="flex items-center justify-between rounded-xl border border-boy/10 p-3"
+                          className="flex items-center justify-between gap-3 rounded-xl border border-boy/10 p-3"
                         >
-                          <div>
-                            <p className="text-sm font-medium text-ink">{p.user.email}</p>
-                            <p className="text-xs text-slate-mist">
-                              {new Date(p.createdAt).toLocaleDateString()}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-ink">{p.user.email}</p>
+                            <p
+                              className="truncate text-xs text-slate-mist"
+                              title={p.transactionReference || undefined}
+                            >
+                              {new Date(p.createdAt).toLocaleDateString()} · Ref: {" "}
+                              {p.transactionReference
+                                ? `${p.transactionReference.slice(0, 8)}...${p.transactionReference.slice(-6)}`
+                                : "—"}
                             </p>
                           </div>
-                          <div className="text-right">
+                          <div className="shrink-0 text-right">
                             <p className="text-sm font-semibold text-boy">
                               {p.currency} {p.amount.toLocaleString()}
                             </p>

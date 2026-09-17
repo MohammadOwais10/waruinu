@@ -289,7 +289,7 @@ export function PlanView() {
             Create your ticket
           </h1>
           <p className="mt-4 text-base leading-7 text-slate-mist">
-            Answer a few questions and Dagitari Waruinu will reply through chat.
+            Answer a few questions and Dagitari Waruinu will reply through chat with Dagiri Waruinu.
           </p>
         </div>
 

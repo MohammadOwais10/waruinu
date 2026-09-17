@@ -12,7 +12,7 @@ const EXPLORE = [
 const SOCIALS = [
   {
     name: "Facebook",
-    href: "https://facebook.com/waruinu",
+    href: "https://www.facebook.com/share/14ovi6nxTkk/",
     icon: (
       <svg
         width="18"
@@ -27,7 +27,7 @@ const SOCIALS = [
   },
   {
     name: "TikTok",
-    href: "https://tiktok.com/@waruinu",
+    href: "https://tiktok.com/@dagitariwaruinu",
     icon: (
       <svg
         width="18"
@@ -42,7 +42,7 @@ const SOCIALS = [
   },
   {
     name: "Instagram",
-    href: "https://instagram.com/waruinu",
+    href: "https://www.instagram.com/dagitariwaruinu2025?stkn=YXk1MWpieGFuMTl0",
     icon: (
       <svg
         width="18"
@@ -153,7 +153,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/login"
                   className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-girl px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-boy"
                 >
                   Start your plan

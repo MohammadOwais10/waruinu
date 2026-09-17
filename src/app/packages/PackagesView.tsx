@@ -6,7 +6,6 @@ import { getStoredUser } from "@/lib/auth";
 import {
   getMe,
   getMembershipPackages,
-  getConsultations,
   getUserPayments,
   initiatePayment,
   simulatePayment,
@@ -21,6 +20,7 @@ export function PackagesView() {
 
   const [packages, setPackages] = useState<MembershipPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<MembershipPackage | null>(null);
+  const [currentPackage, setCurrentPackage] = useState<MembershipPackage | null>(null);
   const [phone, setPhone] = useState("");
   const [canBuy, setCanBuy] = useState(true);
   const [activePlanName, setActivePlanName] = useState<string | null>(null);
@@ -51,35 +51,32 @@ export function PackagesView() {
       .catch(() => setError("Could not load membership packages."));
 
     getMe()
-      .then(async (me) => {
-        if (me.membership?.status === "ACTIVE") {
+      .then((me) => {
+        if (me.membership?.status === "ACTIVE" && me.membership.package) {
           const expired = me.membership.expiresAt && new Date(me.membership.expiresAt) < new Date();
-          if (expired) {
-            setCanBuy(true);
-            return;
+          if (!expired) {
+            setCurrentPackage({ ...me.membership.package, isActive: true });
+            setActivePlanName(me.membership.package.name);
           }
-          // Check if tickets are exhausted (for limited packages)
-          if (me.membership.package?.ticketLimit !== null && me.membership.package?.ticketLimit !== undefined) {
-            try {
-              const list = await getConsultations();
-              const usedSince = list.filter(
-                (c) => new Date(c.createdAt) >= new Date(me.membership!.updatedAt)
-              ).length;
-              if (usedSince >= (me.membership.package!.ticketLimit as number)) {
-                setCanBuy(true);
-                return;
-              }
-            } catch {
-              // ignore
-            }
-          }
-          // Still active with tickets remaining (or unlimited)
-          setCanBuy(false);
-          setActivePlanName(me.membership.package?.name ?? "your plan");
         }
       })
       .catch(() => {});
   }, [mounted, user, router]);
+
+  useEffect(() => {
+    const available = packages.filter(
+      (p) => !currentPackage || p.price > currentPackage.price
+    );
+    if (available.length === 0) {
+      setCanBuy(false);
+      setSelectedPackage(null);
+    } else {
+      setCanBuy(true);
+      setSelectedPackage((current) =>
+        available.find((p) => p.id === current?.id) ?? available[0]
+      );
+    }
+  }, [packages, currentPackage]);
 
   useEffect(
     () => () => {
@@ -170,6 +167,10 @@ export function PackagesView() {
   const formatPrice = (price: number, currency: string) =>
     `${currency === "KES" ? "KSh" : currency} ${price.toLocaleString()}`;
 
+  const availablePackages = packages.filter(
+    (p) => !currentPackage || p.price > currentPackage.price
+  );
+
   return (
     <section className="bg-linen pb-24 pt-28 md:pt-36">
       <div className="mx-auto max-w-4xl px-5 md:px-8">
@@ -208,7 +209,7 @@ export function PackagesView() {
         ) : (
         <>
         <div className="mt-12 grid gap-6 md:grid-cols-2">
-          {packages.map((pkg) => {
+          {availablePackages.map((pkg) => {
             const selected = selectedPackage?.id === pkg.id;
             const unlimited = pkg.ticketLimit === null;
             const hasExpiry = pkg.durationMonths !== null;
@@ -293,7 +294,7 @@ export function PackagesView() {
             process.env.NODE_ENV === "production" &&
             process.env.NEXT_PUBLIC_ENABLE_PAYMENT_SIMULATE !== "true" && (
               <p className="rounded-lg bg-yellow-50 px-4 py-3 text-sm font-medium text-yellow-700">
-                Payment pending. Please complete the M-Pesa prompt on your phone. If you cancel, refresh the page to try again.
+                Payment pending. Please complete the checkout to proceed.
               </p>
             )}
 
@@ -305,7 +306,7 @@ export function PackagesView() {
                 onClick={handleSimulate}
                 className="h-12 w-full rounded-full border border-boy/30 bg-white text-sm font-semibold text-boy transition-colors hover:bg-linen"
               >
-                Simulate M-Pesa approval
+                Simulate payment
               </button>
             )}
 
@@ -315,11 +316,11 @@ export function PackagesView() {
             className="h-12 w-full rounded-full bg-girl text-sm font-semibold text-white transition-colors hover:bg-[#9555c9] disabled:opacity-60"
           >
             {waitingPayment
-              ? "Waiting for M-Pesa confirmation…"
+              ? "Waiting for payment…"
               : paying
-                ? "Initiating payment…"
+                ? "Redirecting to checkout…"
                 : selectedPackage
-                  ? `Pay ${formatPrice(selectedPackage.price, selectedPackage.currency)} with M-Pesa`
+                  ? `Pay ${formatPrice(selectedPackage.price, selectedPackage.currency)}`
                   : "Select a package"}
           </button>
         </form>
