@@ -103,6 +103,7 @@ export interface MembershipPackage {
 export interface PaymentInit {
   paymentId: string;
   amount: number;
+  redirectUrl: string;
 }
 
 export interface Payment {

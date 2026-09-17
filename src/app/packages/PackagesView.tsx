@@ -132,20 +132,17 @@ export function PackagesView() {
       setError("Please select a membership package.");
       return;
     }
-    if (!phone.trim()) {
-      setError("Please enter your M-Pesa phone number.");
-      return;
-    }
     setPaying(true);
     setError("");
     setNotice("");
     try {
       const res = await initiatePayment(phone.trim(), selectedPackage.id);
-      setWaitingPayment(true);
-      setNotice(
-        `M-Pesa payment of ${res.amount.toLocaleString()} initiated. Check your phone and enter your M-Pesa PIN to complete.`
-      );
-      startPolling();
+      setNotice("Redirecting to IntaSend checkout...");
+      if (res.redirectUrl) {
+        window.location.href = res.redirectUrl;
+      } else {
+        setError("Could not get payment checkout URL.");
+      }
     } catch (err) {
       setError(
         err instanceof ApiError
@@ -267,7 +264,7 @@ export function PackagesView() {
               htmlFor="mpesa-phone"
               className="mb-1.5 block text-sm font-medium text-ink"
             >
-              M-Pesa phone number
+              Phone number (optional)
             </label>
             <input
               id="mpesa-phone"
