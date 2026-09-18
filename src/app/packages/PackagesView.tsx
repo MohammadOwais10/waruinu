@@ -9,9 +9,12 @@ import {
   getUserPayments,
   initiatePayment,
   simulatePayment,
+  verifyPayment,
   MembershipPackage,
   ApiError,
 } from "@/lib/api";
+
+const PENDING_PAYMENT_KEY = "waruinu_pending_payment";
 
 export function PackagesView() {
   const router = useRouter();
@@ -34,6 +37,50 @@ export function PackagesView() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // After returning from IntaSend, verify the pending payment and activate the plan
+  useEffect(() => {
+    if (!mounted || !user) return;
+    if (typeof window === "undefined") return;
+
+    const pendingPaymentId = window.localStorage.getItem(PENDING_PAYMENT_KEY);
+    if (!pendingPaymentId) return;
+
+    // Clear immediately so we only attempt verification once
+    window.localStorage.removeItem(PENDING_PAYMENT_KEY);
+    setWaitingPayment(true);
+
+    verifyPayment(pendingPaymentId)
+      .then(async (res) => {
+        if (res.status === "SUCCESS") {
+          // Refresh profile so the new plan shows up
+          try {
+            const me = await getMe();
+            if (me.membership?.status === "ACTIVE" && me.membership.package) {
+              const expired = me.membership.expiresAt && new Date(me.membership.expiresAt) < new Date();
+              if (!expired) {
+                setCurrentPackage({ ...me.membership.package, isActive: true });
+                setActivePlanName(me.membership.package.name);
+              }
+            }
+          } catch {
+            // ignore — payment is still confirmed
+          }
+          setPaymentModal("success");
+          setCanBuy(false);
+        } else if (res.status === "FAILED") {
+          setPaymentModal("failed");
+        }
+        // PENDING: leave the user on the page; they can retry / simulate
+      })
+      .catch(() => {
+        // Verification failed (network/API error) — don't block the user
+        setError("Could not confirm your payment. If you paid, please refresh or contact support.");
+      })
+      .finally(() => {
+        setWaitingPayment(false);
+      });
+  }, [mounted, user]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -136,6 +183,10 @@ export function PackagesView() {
       const res = await initiatePayment(phone.trim(), selectedPackage.id);
       setNotice("Redirecting to IntaSend checkout...");
       if (res.redirectUrl) {
+        // Persist paymentId so we can verify the payment after IntaSend redirects back
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(PENDING_PAYMENT_KEY, res.paymentId);
+        }
         window.location.href = res.redirectUrl;
       } else {
         setError("Could not get payment checkout URL.");

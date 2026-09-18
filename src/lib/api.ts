@@ -341,6 +341,17 @@ export function getUserPayments() {
   return request<Payment[]>("/api/membership/payments", {}, true);
 }
 
+export function verifyPayment(paymentId: string) {
+  return request<{ paymentId: string; status: "PENDING" | "SUCCESS" | "FAILED"; state?: string; failedReason?: string | null }>(
+    "/api/membership/verify-payment",
+    {
+      method: "POST",
+      body: JSON.stringify({ paymentId }),
+    },
+    true
+  );
+}
+
 /* ---------- Consultations ---------- */
 
 export function createConsultation(payload: ConsultationPayload) {
