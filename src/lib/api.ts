@@ -266,6 +266,15 @@ export function getAdminPayments() {
   return request<AdminPayment[]>("/api/admin/payments", {}, true);
 }
 
+export function verifyAdminPayment(id: string) {
+  return request<{
+    paymentId: string;
+    status: "PENDING" | "SUCCESS" | "FAILED";
+    state?: string;
+    failedReason?: string | null;
+  }>(`/api/admin/payments/${id}/verify`, { method: "POST" }, true);
+}
+
 export function getAdminPackages() {
   return request<MembershipPackage[]>("/api/admin/packages", {}, true);
 }

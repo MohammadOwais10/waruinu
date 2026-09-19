@@ -15,6 +15,7 @@ import {
   getAdminPayments,
   getAdminUsers,
   updateAdminPackage,
+  verifyAdminPayment,
   replyConsultation,
   closeConsultation,
   login,
@@ -175,6 +176,7 @@ export function AdminView() {
   const [packageSuccess, setPackageSuccess] = useState("");
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -335,6 +337,27 @@ export function AdminView() {
       setRefresh((r) => r + 1);
     } catch {
       setError("Could not close ticket.");
+    }
+  }
+
+  async function handleVerifyPayment(id: string) {
+    setVerifying(id);
+    setPaymentsError("");
+    try {
+      const res = await verifyAdminPayment(id);
+      if (res.status === "SUCCESS") {
+        setPackageSuccess("Payment verified and membership activated.");
+      } else if (res.status === "FAILED") {
+        setError("Payment was failed/declined.");
+      } else {
+        setError("Payment is still pending on IntaSend.");
+      }
+      setRefresh((r) => r + 1);
+      setTimeout(() => setPackageSuccess(""), 4000);
+    } catch (err) {
+      setPaymentsError(err instanceof ApiError ? err.message : "Could not verify payment.");
+    } finally {
+      setVerifying(null);
     }
   }
 
@@ -718,6 +741,7 @@ export function AdminView() {
                         <th className="pb-3 font-medium">Status</th>
                         <th className="pb-3 font-medium">Reference</th>
                         <th className="pb-3 font-medium">Date</th>
+                        <th className="pb-3 font-medium">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -745,6 +769,17 @@ export function AdminView() {
                           </td>
                           <td className="py-3 text-slate-mist">
                             {new Date(p.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="py-3">
+                            {p.status === "PENDING" && (
+                              <button
+                                onClick={() => handleVerifyPayment(p.id)}
+                                disabled={verifying === p.id}
+                                className="rounded-full bg-boy px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-boy-deep disabled:opacity-60"
+                              >
+                                {verifying === p.id ? "Verifying..." : "Verify"}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
